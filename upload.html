@@ -1,0 +1,39 @@
+<html>
+<body>
+<script>
+	function upload()
+	{
+		console.log("upload");
+		post("http://developer.echonest.com/api/v4/track/upload",
+			{api_key: "F5VHT1SMXEQZHBKO8",
+			url: "http://cutomo.itncdn.com/ace/839DCEEDE8232E735E786547D433B1203D17FC31/users/AndrewPatrick/481256/04-Out-of-the-Woods.mp3",
+			callback: "/GoDJ/one.html"});
+	}
+
+	function post(path, params, method) {
+    method = method || "post"; // Set method to post by default if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+<button onclick="upload()">Upload</button>
+</body>
+</html>
