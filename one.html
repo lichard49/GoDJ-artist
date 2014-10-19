@@ -63,6 +63,12 @@ function init() {
 			info[indice].brightness += track.analysis.segments[i]["timbre"][1]; 
 			info[indice].flatness += track.analysis.segments[i]["timbre"][2]; 
 		}
+		for (var i=0; i < track.analysis.segments.length; i++) {
+			var indice = Math.floor(track.analysis.segments[i].start / 2);
+			info[indice].loudness /= info[indice].size;
+			info[indice].brightness /= info[indice].size;
+			info[indice].flatness /= info[indice].size;
+		}
 		console.log(info);
                 // Do the remixing here!
                 for (var i=0; i < track.analysis.beats.length; i++) {
