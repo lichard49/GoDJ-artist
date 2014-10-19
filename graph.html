@@ -14,7 +14,7 @@ $(function () {
             }
         });
 
-        var fb = new Firebase("https://lichard49.firebaseio.com/GoDJ/me/users"); 
+        var fb = new Firebase("https://lichard49.firebaseio.com/GoDJ/users/me");
         fb.once("value", dataIn);
         function dataIn(snapshot)
         {
@@ -51,7 +51,9 @@ $(function () {
                       value: 0,
                       width: 1,
                       color: '#808080'
-                  }]
+                  }],
+                  min: 0,
+                  max: 20
               },
               tooltip: {
                   formatter: function () {
@@ -65,7 +67,7 @@ $(function () {
                   enabled: false
               },
               series: [{
-                  name: 'Random data',
+                  name: 'Real-time Audience Activity',
                   data: (function () {
                     var data = [];
                       snapshot.forEach(function(child)
