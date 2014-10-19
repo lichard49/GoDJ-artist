@@ -32,6 +32,8 @@
 
        <div class="login" id="event_form">
           <form action="/GoDJ-artist/graph.html" method="post">
+            <input type="text" placeholder="Event Name" id="event_name"><br>
+            <input type="text" placeholder="Venue" id="venue"><br>
             <input type="text" placeholder="Event ID" id="event_id"><br>
             <input type="submit" id = "create_event" value="Create Event">
           </form>
@@ -39,7 +41,6 @@
      <?php } ?>
 
   <script src='http://codepen.io/assets/libs/fullpage/jquery.js'></script>
-  <script src='datamazing.js'></script>
 </body>
 
 </html>

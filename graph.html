@@ -2,6 +2,7 @@
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="http://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://cdn.firebase.com/v0/firebase.js"></script> 
+<script type="text/javascript" src='remix.js'></script>
 
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
@@ -14,7 +15,7 @@ $(function () {
             }
         });
 
-        var fb = new Firebase("https://lichard49.firebaseio.com/GoDJ/users/me");
+        var fb = new Firebase("https://lichard49.firebaseio.com/GoDJ/users");
         fb.once("value", dataIn);
         function dataIn(snapshot)
         {
@@ -26,18 +27,63 @@ $(function () {
                   marginRight: 10,
                   events: {
                       load: function () {
-                          var series = this.series[0];
-                          fb.on("child_added", function(newChild)
+                          series = this.series[0];
+                          series2 = this.series[1];
+                          fb.child("me").on("child_added", function(newChild)
                           {
-                            var x = newChild.name();
-                            var y = newChild.val();
-                            series.addPoint({x: Number(x), y: Number(y)}, true, true);
+                            x1 = newChild.name();
+                            y1 = newChild.val();
+
+                            // var currentTime = (new Date()).getTime();
+                            // var timeDiff = currentTime - time; //millis
+                            // timeDiff /= 1000;
+
+                            // if(y2 > -1)
+                            // {
+                            //   //console.log("1");
+                            //   xAvg = (x1+x2)/2;
+                            //   yAvg = (y1+y2)/2;
+                            //   x1 = -1;
+                            //   y1 = -1;
+                            //   x2 = -1;
+                            //   y2 = -1;
+                            //   series.addPoint({x: Number(xAvg), y: Number(yAvg)}, true, true);
+
+                            //   if(yAvg > 20)
+                            //   {
+                            //     $('#container').after("Keep on rocking!  Your audience is thoroughly engaged.  Email this official GoDJ  endorsement certificate to info@musicdealers.com");
+                            //   }
+                            // }
                           });
+                          fb.child("me1").on("child_added", function(newChild)
+                          {
+                            x2 = newChild.name();
+                            y2 = newChild.val();
+
+                            // if(y1 > -1)
+                            // {
+                            //   //console.log("2");
+                            //   xAvg = (x1+x2)/2;
+                            //   yAvg = (y1+y2)/2;
+                            //   x1 = -1;
+                            //   y1 = -1;
+                            //   x2 = -1;
+                            //   y2 = -1;
+                            //   series.addPoint({x: Number(xAvg), y: Number(yAvg)}, true, true);
+                            //   if(yAvg > 20)
+                            //   {
+                            //     $('#container').after("Keep on rocking!  Your audience is thoroughly engaged.  Email this official GoDJ  endorsement certificate to info@musicdealers.com");
+                            //   }
+                            // }
+                          });
+                          /*
+                          
+*/
                       }
                   }
               },
               title: {
-                  text: 'Live random data'
+                  text: 'Real-time Audience Activity'
               },
               xAxis: {
                   type: 'datetime',
@@ -67,22 +113,179 @@ $(function () {
                   enabled: false
               },
               series: [{
-                  name: 'Real-time Audience Activity',
-                  data: (function () {
-                    var data = [];
-                      snapshot.forEach(function(child)
-                      {
-                        var x = child.name();
-                        var y = child.val();
-                        data.push({x: Number(x), y: Number(y)});
-                      });                      
-
-
-                      return data;
-                  }())
+                name: 'Real-time Audience Activity',
+                data: (function () {
+                  var data = [];
+                  
+                  /*
+                  snapshot.child("me").forEach(function(child)
+                  {
+                    var x = child.name();
+                    var y = child.val();
+                    data.push({x: Number(x), y: Number(y)});
+                  });
+                  */
+                  //data.push({x: myX*1000+time+162641, y: 0});
+                  for (var i = 0; i < 100; i+=1) {
+                    var x = i;
+                    var y = 0;
+                    data.push({x: Number(x)+(new Date()).getTime(), y: Number(y)});
+                  };
+                  
+                  return data;
+                }())
+              },
+              {
+                name: 'Track Audio Signal',
+                data: (function () {
+                  var data = [];
+                  
+                  for (var i = 0; i < 100; i+=1) {
+                    var x = i;
+                    var y = 0;
+                    data.push({x: Number(x)+(new Date()).getTime(), y: Number(y)});
+                  };
+                  
+                  return data;
+                }())
               }]
           });
         }
     });
 });
+
+var x1 = -1, y1 = -1, x2 = -1, y2 = -1;
+var apiKey = 'F5VHT1SMXEQZHBKO8';
+var trackID = 'TRCYWPQ139279B3308';
+var trackURL = 'audio/1451_-_D.mp3'
+
+var remixer;
+var player;
+var track;
+var remixed;
+var info = [];
+var timeSpan = .5;
+var myX = 0;
+var series;
+var series2;
+var max = -10000000;
+var min = 1000000000000000000000000;
+var running = true;
+var time;
+
+function init() {
+    var contextFunction = window.webkitAudioContext || window.AudioContext;
+    if (contextFunction === undefined) {
+        $("#info").text("Sorry, this app needs advanced web audio. Your browser doesn't"
+            + " support it. Try the latest version of Chrome?");
+    } else {
+        var context = new contextFunction();
+        remixer = createJRemixer(context, $, apiKey);
+        player = remixer.getPlayer();
+        $("#info").text("Loading analysis data...");
+
+        remixer.remixTrackById(trackID, trackURL, function(t, percent) {
+            track = t;
+
+            $("#info").text(percent + "% of the track loaded");
+            if (percent == 100) {
+                $("#info").text(percent + "% of the track loaded");
+            }
+
+            if (track.status == 'ok') {
+                remixed = new Array();
+        console.log(track.analysis);
+        var duration = Math.floor(track.analysis.track.duration);
+        for (var i=0; i < duration/timeSpan; i++) {
+            info[i] = [0,0,0,0];
+            info[i][0] = 0; //size
+            info[i][1] = 0; //loudness
+            info[i][2] = 0; //brightness
+            info[i][3] = 0; //flatness
+        }
+        console.log(info);
+        for (var i=0; i < track.analysis.segments.length-1; i++) {
+            console.log(track.analysis.segments[i].start*duration/timeSpan);
+            var indice = Math.floor(track.analysis.segments[i].start / 2);
+            //var indice = Math.floor(track.analysis.segments[i].start * duration/timeSpan / track.analysis.segments.length);
+            console.log(indice);
+            var temp = indice+1;
+
+            info[indice][0] += 1;
+            info[indice][1] += Math.abs(track.analysis.segments[i].loudness_max - track.analysis.segments[temp].loudness_max);
+            info[indice][2] += track.analysis.segments[i]["timbre"][1];//Math.abs(track.analysis.segments[i]["timbre"][1] - track.analysis.segments[temp]["timbre"][1]); 
+            info[indice][3] += track.analysis.segments[i]["timbre"][2];//Math.abs(track.analysis.segments[i]["timbre"][2] - track.analysis.segments[temp]["timbre"][2]);
+        }
+        for (var i=0; i < track.analysis.segments.length; i++) {
+            var indice = Math.floor(track.analysis.segments[i].start / 2);
+            info[indice][1] /= info[indice][0];
+            info[indice][2] = info[indice][2] * 10 / info[indice][0];
+            var j = info[indice][2];
+            if (j > max) {
+              max = j;
+            }
+            if (j < min) {
+              min = j;
+            }
+            info[indice][3] /= info[indice][0];
+        }
+        console.log(info);
+                // Do the remixing here!
+                
+                for (var i=0; i < track.analysis.beats.length; i++) {
+
+                    remixed.push(track.analysis.beats[i]);
+                }
+                $("#info").text("Remix complete!");
+            }
+        });
+    }
+}
+function runThisShit() {
+  console.log(info[0][2]);
+  running = true;
+  time = (new Date()).getTime();
+  setInterval(function()
+  {
+    if(running)
+    {
+      var myY = ((info[myX][2]-min) / (max-min) * 20 * 7)%20;
+      
+
+      series2.addPoint({x: myX*1000+time+162641, y: myY}, true, true);
+      
+
+
+      xAvg = (x1+x2)/2;
+      yAvg = (y1+y2)/2;
+      console.log(myX*1000+time + "\t" + x1 + ", " + yAvg);
+      series.addPoint({x: myX*1000+time+162641, y: yAvg}, true, true);
+
+      if(yAvg > 20)
+      {
+        $('#container').after("Keep on rocking!  Your audience is thoroughly engaged.  Email this official GoDJ  endorsement certificate to info@musicdealers.com");
+      }
+      myX += 1;
+    }
+
+  }, timeSpan * 1000);
+
+}
+function stop()
+{
+  running = false;
+}
+
+window.onload = init;
+
+
 </script>
+
+<div id='info'> </div>
+<button onClick="player.play(0, remixed);runThisShit();">Play!</button>
+<button onClick="player.stop(); stop();">Stop!</button>
+</body>
+
+
+
+</html>
